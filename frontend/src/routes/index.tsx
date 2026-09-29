@@ -1,0 +1,329 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Apple, Play, Menu, Globe, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { HeroLiveMap } from "@/components/live-location/hero-live-map";
+import { Reveal } from "@/components/reveal";
+import { StatsStrip } from "@/components/stats-strip";
+import { LiveMapDemo } from "@/components/live-map-demo";
+import { HowItWorks } from "@/components/how-it-works";
+import { SiteFooter } from "@/components/site-footer";
+import { TestimonialsStrip } from "@/components/testimonials-strip";
+import { FaqSection } from "@/components/faq-section";
+import { EmailSignup } from "@/components/email-signup";
+import { OurVision } from "@/components/our-vision";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import pubLogo from "@/assets/pub-logo.png.asset.json";
+import heroCampus from "@/assets/hero-campus.png.asset.json";
+import { useLanguage, LANGUAGES } from "@/lib/i18n";
+
+export const Route = createFileRoute("/")({
+  head: () => ({
+    title: "PUB Bus Track — Pundra University Bus Tracking System",
+    meta: [
+      { name: "description", content: "Track Pundra University buses live, check route timetables, and get departure reminders with PUB Bus Track." },
+      { property: "og:title", content: "PUB Bus Track — Pundra University Bus Tracking System" },
+      { property: "og:description", content: "Live bus locations, route schedules, and departure reminders for Pundra University students, teachers, and staff." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" }
+    ],
+    links: [
+      { rel: "icon", href: "/favicon.ico" }
+    ]
+  }),
+
+  component: Index,
+});
+
+const navLinks = [
+  { label: "Home", key: "nav.home", href: "/" },
+  { label: "Live Location", key: "nav.live", href: "/live-location" },
+  { label: "Buses", key: "nav.buses", href: "/buses" },
+  { label: "Time Schedule", key: "nav.schedule", href: "/time-schedule" },
+  { label: "Routes", key: "nav.routes", href: "/#routes" },
+  { label: "How it works", key: "nav.how", href: "/#how-it-works" },
+];
+
+function Clouds() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      {/* Top Left Cloud */}
+      <div 
+        className="absolute left-[2%] top-[10%] opacity-30 blur-2xl animate-cloud-drift lg:opacity-40"
+        style={{ 
+          width: '300px', 
+          height: '120px', 
+          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 40%, transparent 70%)',
+          borderRadius: '50%'
+        }}
+      />
+      {/* Top Right Cloud */}
+      <div 
+        className="absolute right-[5%] top-[5%] opacity-20 blur-3xl animate-cloud-drift lg:opacity-30"
+        style={{ 
+          width: '400px', 
+          height: '150px', 
+          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 50%, transparent 80%)',
+          animationDirection: 'reverse',
+          borderRadius: '50%'
+        }}
+      />
+      {/* Center Background Cloud (Large/Soft) */}
+      <div 
+        className="absolute left-[20%] top-[30%] opacity-15 blur-[80px] animate-cloud-drift lg:opacity-20"
+        style={{ 
+          width: '800px', 
+          height: '300px', 
+          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 60%, transparent 90%)',
+          animationDuration: '120s',
+          borderRadius: '50%',
+          zIndex: -1
+        }}
+      />
+      {/* Lower Right Cloud */}
+      <div 
+        className="absolute right-[15%] top-[60%] opacity-20 blur-2xl animate-cloud-drift hidden lg:block"
+        style={{ 
+          width: '350px', 
+          height: '130px', 
+          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 40%, transparent 70%)',
+          animationDuration: '90s',
+          borderRadius: '50%'
+        }}
+      />
+    </div>
+  );
+}
+
+function Index() {
+  const [open, setOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("Home");
+  const { lang, setLang, t } = useLanguage();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["how-it-works", "stats", "live-location", "buses", "schedule", "routes", "vision", "footer"];
+      let current = "Home";
+
+      const scrollY = window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      if (scrollY + windowHeight >= documentHeight - 100) {
+        current = "How it works";
+      } else {
+        for (const section of sections) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 120) {
+              const link = navLinks.find(l => l.href === `/#${section}` || l.href === `#${section}`);
+              if (link) current = link.label;
+            }
+          }
+        }
+      }
+      setActiveSection(current);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const smoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.includes("#")) {
+      e.preventDefault();
+      const id = href.split("#")[1];
+      if (!id) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        const element = document.getElementById(id);
+        if (element) {
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - 80;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+          });
+        }
+      }
+      setOpen(false);
+    }
+  };
+
+  return (
+    <main className="relative min-h-screen bg-[linear-gradient(to_bottom,var(--color-sky-top),var(--color-sky-bottom)_62%,var(--color-background))]">
+      <Clouds />
+
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 w-full backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 gap-4">
+          <a href="/" onClick={(e) => smoothScroll(e, "/")} className="flex items-center gap-2.5 shrink-0">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white shadow-sm overflow-hidden">
+              <img src={pubLogo.url} alt="Logo" className="h-full w-full object-cover" />
+            </span>
+            <span className="font-display text-xl font-extrabold tracking-tight text-ink nav-item-nowrap">
+              PUB Bus Track
+            </span>
+          </a>
+
+          <nav className="hidden items-center gap-4 xl:gap-8 lg:flex">
+            {navLinks.map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                onClick={(e) => smoothScroll(e, l.href)}
+                className={`text-[14px] xl:text-sm nav-link-clean ${
+                  activeSection === l.label ? "text-primary active" : "text-ink/80"
+                }`}
+              >
+                {t(l.key)}
+              </a>
+            ))}
+          </nav>
+
+          <div className="hidden items-center gap-2 xl:gap-4 lg:flex shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="nav-link-clean flex items-center gap-1.5 px-4 py-2 text-[14px] xl:text-sm text-ink cursor-pointer">
+                <Globe className="h-3.5 w-3.5 shrink-0" />
+                <span className="nav-item-nowrap">{LANGUAGES.find((l) => l.code === lang)?.native}</span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-50 shrink-0" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-2xl border-none shadow-xl">
+                {LANGUAGES.map((l) => (
+                  <DropdownMenuItem
+                    key={l.code}
+                    onClick={() => setLang(l.code)}
+                    className={`rounded-xl font-bold cursor-pointer ${l.code === lang ? "text-primary" : ""}`}
+                  >
+                    {l.native}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <a href="/login" className="nav-link-clean px-6 py-2.5 text-[14px] xl:text-sm text-ink nav-item-nowrap">{t("nav.login")}</a>
+            <a href="/signup" className="btn-hover-premium rounded-full bg-primary px-6 py-2.5 text-[14px] xl:text-sm font-bold text-primary-foreground shadow-lg nav-item-nowrap">{t("nav.signup")}</a>
+          </div>
+
+          <button 
+            onClick={() => setOpen(!open)} 
+            className="lg:hidden p-2 hover:bg-white/40 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-primary"
+            aria-label="Toggle Menu"
+          >
+            <Menu className="h-6 w-6 text-ink" />
+          </button>
+        </div>
+
+        {/* Mobile Nav */}
+        {open && (
+          <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-xl p-5 shadow-2xl border-b border-ink/5 animate-in fade-in slide-in-from-top-4 lg:hidden">
+            <nav className="flex flex-col gap-2">
+              {navLinks.map((l) => (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  onClick={(e) => smoothScroll(e, l.href)}
+                  className={`nav-link-clean w-full justify-start ${
+                    activeSection === l.label ? "text-primary active" : "text-ink/80"
+                  }`}
+                >
+                  {t(l.key)}
+                </a>
+              ))}
+              <div className="h-px bg-ink/5 my-2" />
+              <div className="flex flex-col gap-3">
+                <a href="/login" className="nav-link-clean w-full justify-start text-ink">{t("nav.login")}</a>
+                <a href="/signup" className="btn-hover-premium rounded-full bg-primary py-3.5 text-center font-bold text-primary-foreground shadow-lg">{t("nav.signup")}</a>
+              </div>
+            </nav>
+          </div>
+        )}
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative z-10 w-full overflow-hidden px-5 pt-12 pb-20 lg:pt-16">
+        {/* Campus background */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroCampus.url})` }}
+        />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/88 via-white/78 to-white/40" />
+        <div className="relative z-10 mx-auto max-w-7xl">
+          {/* Centered Headline & Subtext */}
+        <div className="mb-12 text-center">
+          <Reveal>
+            <div className="mb-4 flex justify-center">
+              <span className="rounded-full bg-white/60 px-4 py-1.5 text-xs font-bold tracking-widest text-primary uppercase shadow-sm">
+                {t("hero.badge")}
+              </span>
+            </div>
+            <h1 className="font-display text-5xl font-extrabold leading-[1.1] tracking-tight text-ink sm:text-7xl">
+              {t("hero.title1")}
+              <br />
+              <span className="text-accent">{t("hero.title2")}</span> {t("hero.title3")}
+            </h1>
+            <p className="mx-auto mt-6 max-w-[600px] text-lg font-medium text-ink/75 sm:text-xl">
+              {t("hero.subtitle")}
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-6">
+              <a href="#how-it-works" onClick={(e) => smoothScroll(e, "#how-it-works")} className="btn-hover-premium rounded-full bg-primary px-10 py-4 font-display text-lg font-bold text-primary-foreground shadow-2xl">
+                {t("hero.cta")}
+              </a>
+              <div className="flex flex-col items-center gap-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-ink/40">
+                  {t("hero.download")}
+                </span>
+                <div className="flex items-center gap-3">
+                  <a href="#" className="btn-hover-premium flex h-10 items-center gap-2 rounded-xl bg-ink px-3 text-background">
+                    <Apple className="h-4 w-4" />
+                    <div className="text-left leading-none">
+                      <span className="block text-[0.4rem] uppercase opacity-60">{t("hero.appstore.small")}</span>
+                      <span className="block text-[10px] font-bold">{t("hero.appstore")}</span>
+                    </div>
+                  </a>
+                  <a href="#" className="btn-hover-premium flex h-10 items-center gap-2 rounded-xl bg-ink px-3 text-background">
+                    <Play className="h-4 w-4" />
+                    <div className="text-left leading-none">
+                      <span className="block text-[0.4rem] uppercase opacity-60">{t("hero.play.small")}</span>
+                      <span className="block text-[10px] font-bold">{t("hero.play")}</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
+        {/* Live map preview */}
+        <div className="mt-10">
+          <HeroLiveMap />
+        </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <StatsStrip />
+
+      {/* How it Works Section */}
+      <HowItWorks />
+
+      {/* Testimonials Section */}
+      <TestimonialsStrip />
+
+      {/* Vision Section */}
+      <OurVision />
+
+      {/* Email Signup Section */}
+      <EmailSignup />
+
+      {/* Footer Section */}
+      <SiteFooter />
+    </main>
+  );
+}
